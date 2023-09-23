@@ -1,0 +1,59 @@
+{{ template "header.html" . }}
+
+<div class="hero">
+    <video class="hero-video" autoplay loop muted poster="https://assets.codepen.io/6093409/river.jpg">
+        <source src="/static/videos/hero-background.mp4" type="video/mp4">
+    </video>
+    <div class="hero-content">
+        <h1 class="hero-title">Книга памяти</h1>
+        <p class="hero-text">
+            Цель проекта – предоставить возможность посетителям портала получить наиболее полную документальную
+            информацию об участниках Великой Отечественной войны при помощи новых интерактивных инструментов.
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    <ul class="card-list">
+        <h1>Выбери услугу</h1>
+        {{ range .services }}
+        <li class="card">
+            <img src="{{ .Image }}" alt="" class="card-image">
+            <div class="card-content">
+                <h3 class="card-title">{{ .Name }}</h3>
+                <p class="card-description">{{ .Description }}</p>
+                <a class="link" href="/service/{{ .Id }}">Подробнее</a>
+            </div>
+        </li>
+        {{ end }}
+    </ul>
+</div>
+
+<script>
+    function isVisible(elem) {
+        let coords = elem.getBoundingClientRect();
+        let windowHeight = document.documentElement.clientHeight;
+        let topVisible = coords.top >= 0 && coords.top < windowHeight;
+        let bottomVisible = coords.bottom <= windowHeight && coords.bottom > 0;
+        let betweenVisible = coords.top < 0 && coords.bottom > windowHeight;
+        return topVisible || bottomVisible || betweenVisible;
+    }
+
+    const hero = document.querySelector('.hero');
+    const navbar = document.querySelector('.navbar');
+    navbar.classList.add('navbar_transparent');
+
+    function showInvisibleHero() {
+        const navbarIsTransparent = navbar.classList.contains('navbar_transparent');
+        if (!isVisible(hero) && navbarIsTransparent) {
+            navbar.classList.remove('navbar_transparent');
+        }
+        if (isVisible(hero) && !navbarIsTransparent) {
+            navbar.classList.add('navbar_transparent');
+        }
+    }
+
+    window.onscroll = showInvisibleHero;
+</script>
+
+{{ template "footer.html" . }}
