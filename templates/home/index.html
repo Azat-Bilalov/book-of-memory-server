@@ -15,7 +15,12 @@
 
 <div class="container">
     <ul class="card-list">
+        {{ if .search }}
+        <h1>Результаты поиска: «{{ .search }}»</h1>
+        {{ else }}
         <h1>Выбери услугу</h1>
+        {{ end }}
+
         {{ range .services }}
         <li class="card">
             <img src="{{ .Image }}" alt="" class="card-image">
