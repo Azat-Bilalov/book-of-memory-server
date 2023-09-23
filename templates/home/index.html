@@ -29,31 +29,4 @@
     </ul>
 </div>
 
-<script>
-    function isVisible(elem) {
-        let coords = elem.getBoundingClientRect();
-        let windowHeight = document.documentElement.clientHeight;
-        let topVisible = coords.top >= 0 && coords.top < windowHeight;
-        let bottomVisible = coords.bottom <= windowHeight && coords.bottom > 0;
-        let betweenVisible = coords.top < 0 && coords.bottom > windowHeight;
-        return topVisible || bottomVisible || betweenVisible;
-    }
-
-    const hero = document.querySelector('.hero');
-    const navbar = document.querySelector('.navbar');
-    navbar.classList.add('navbar_transparent');
-
-    function showInvisibleHero() {
-        const navbarIsTransparent = navbar.classList.contains('navbar_transparent');
-        if (!isVisible(hero) && navbarIsTransparent) {
-            navbar.classList.remove('navbar_transparent');
-        }
-        if (isVisible(hero) && !navbarIsTransparent) {
-            navbar.classList.add('navbar_transparent');
-        }
-    }
-
-    window.onscroll = showInvisibleHero;
-</script>
-
 {{ template "footer.html" . }}
