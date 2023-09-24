@@ -22,10 +22,10 @@ func New(dsn string) (*Repository, error) {
 	}, nil
 }
 
-func (r *Repository) GetDocuments() ([]*ds.Document, error) {
+func (r *Repository) GetActiveDocuments() ([]*ds.Document, error) {
 	documents := make([]*ds.Document, 0)
 
-	err := r.db.Find(&documents).Error
+	err := r.db.Find(&documents, "status = ?", ds.DOCUMENT_STATUS_ACTIVE).Error
 	if err != nil {
 		return nil, err
 	}
@@ -33,10 +33,10 @@ func (r *Repository) GetDocuments() ([]*ds.Document, error) {
 	return documents, nil
 }
 
-func (r *Repository) GetDocumentByID(id int) (*ds.Document, error) {
+func (r *Repository) GetActiveDocumentByID(id int) (*ds.Document, error) {
 	document := &ds.Document{}
 
-	err := r.db.First(document, "document_id = ?", id).Error
+	err := r.db.First(document, "document_id = ? AND status = ?", id, ds.DOCUMENT_STATUS_ACTIVE).Error
 	if err != nil {
 		return nil, err
 	}
@@ -46,4 +46,12 @@ func (r *Repository) GetDocumentByID(id int) (*ds.Document, error) {
 
 func (r *Repository) CreateDocument(document ds.Document) error {
 	return r.db.Create(document).Error
+}
+
+func (r *Repository) UpdateDocument(document ds.Document) error {
+	return r.db.Save(document).Error
+}
+
+func (r *Repository) DeleteDocument(id int) error {
+	return r.db.Exec("UPDATE documents SET status = ? WHERE document_id = ?", ds.DOCUMENT_STATUS_DELETED, id).Error
 }

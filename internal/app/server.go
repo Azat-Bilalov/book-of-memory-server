@@ -34,7 +34,7 @@ func (a *Application) StartServer() {
 
 		search := strings.ToLower(c.Query("search"))
 
-		documents, err := a.repository.GetDocuments()
+		documents, err := a.repository.GetActiveDocuments()
 		if err != nil {
 			log.Println("Error with running\nServer down")
 			return
@@ -64,7 +64,7 @@ func (a *Application) StartServer() {
 			return
 		}
 
-		document, err := a.repository.GetDocumentByID(id)
+		document, err := a.repository.GetActiveDocumentByID(id)
 		if err != nil {
 			log.Println("Error with running\nServer down")
 			return
@@ -79,6 +79,19 @@ func (a *Application) StartServer() {
 			"title":    document.Title,
 			"document": document,
 		})
+	})
+
+	r.GET("/document/:id/delete", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			c.String(http.StatusBadRequest, "Bad request")
+			return
+		}
+
+		a.repository.DeleteDocument(id)
+
+		c.Redirect(http.StatusMovedPermanently, "/")
 	})
 
 	r.Static("/static", "./static/")

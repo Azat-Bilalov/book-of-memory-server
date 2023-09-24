@@ -279,6 +279,7 @@
   width: fit-content;
   transition: background-color 0.3s ease-out 100ms;
   cursor: pointer;
+  border: none;
 }
 
 .button_color_primary {
@@ -382,4 +383,8 @@
 .document-action {
   justify-self: center;
   grid-area: action;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  align-items: center;
 }
