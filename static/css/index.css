@@ -337,7 +337,7 @@
 }
 
 /* Сервис */
-.service {
+.document {
   display: grid;
   grid-template-areas:
     "image title"
@@ -349,7 +349,7 @@
 }
 
 @media screen and (max-width: 768px) {
-  .service {
+  .document {
     grid-template-areas:
       "title"
       "image"
@@ -359,7 +359,7 @@
   }
 }
 
-.service-image {
+.document-image {
   grid-area: image;
   object-fit: cover;
   aspect-ratio: 1 / 1;
@@ -367,19 +367,19 @@
   width: 100%;
 }
 
-.service-title {
+.document-title {
   grid-area: title;
   font-size: 48px;
 }
 
-.service-description {
+.document-description {
   grid-area: description;
   white-space: pre-line;
   font-size: var(--p-18);
   color: var(--text-secondary);
 }
 
-.service-action {
+.document-action {
   justify-self: center;
   grid-area: action;
 }
