@@ -6,15 +6,15 @@
             <img src="/static/svg/home.svg" alt="" class="breadcrumb-icon link">
         </a>
         &rightarrow;
-        <a class="link" href="/">Услуги</a>
+        <a class="link" href="/">Документы</a>
         &rightarrow;
-        <span>{{ .service.Name }}</span>
+        <span>{{ .document.Title }}</span>
     </div>
 
     <div class="service">
-        <h1 class="service-title">{{ .service.Name }}</h1>
-        <img src="{{ .service.Image }}" alt="" class="service-image">
-        <p class="service-description">{{ .service.Description }}</p>
+        <h1 class="service-title">{{ .document.Title }}</h1>
+        <img src="{{ .document.Image_url }}" alt="" class="service-image">
+        <p class="service-description">{{ .document.Description }}</p>
         <buttton class="service-action button button_color_primary button_size_large">
             <span>ОСТАВИТЬ ЗАЯВКУ</span>
             <img src="/static/svg/arrow-right.svg" alt="" class="button-icon">

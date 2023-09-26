@@ -9,11 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Service struct {
-	Id          int
-	Name        string
+type Document struct {
+	Document_id int
+	Title       string
 	Description string
-	Image       string
+	Image_url   string
+	Status      string
 }
 
 func StartServer() {
@@ -21,44 +22,38 @@ func StartServer() {
 
 	r := gin.Default()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-
 	r.LoadHTMLGlob("templates/**/*")
 
-	// словарь вместо массива
-	serviceData := map[int]Service{
-		1: {Id: 1, Name: "Личная карточка", Description: "Личная карточка — документ, содержащий информацию о военнослужащем. В личной карточке заносятся данные о биографии, физической подготовке, участии в боевых действиях и прохождении службы.", Image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQX6qztHnPlLg_dBb-LoJIkqWjEWRvKrZDAQw&usqp=CAU"},
-		2: {Id: 2, Name: "Наградные", Description: "Наградные документы — документы, удостоверяющие присуждение различных наград военнослужащим за особые заслуги и подвиги. В наградные документы вносятся сведения о военнослужащих, обстоятельствах присуждения и виде награды.", Image: "https://www.ulspu.ru/vov/img/otdelno/pushkareva_g_v/big/lichnaya_kartochka.jpg"},
-		3: {Id: 3, Name: "Журнал боевых действий", Description: "Журнал боевых действий — отчётно-информационный документ, входит в состав боевых документов.\nПри составлении (ведении) журнала боевых действий соблюдаются правила, предусмотренные уставами и наставлениями.\nВедётся в штабе объединения, соединения, воинской части, а также на кораблях 1, 2 и 3 ранга в течение всего времени нахождения в составе действующей армии или флота. В журнал боевых действий ежедневно заносятся сведения о подготовке и ходе боевых действий.", Image: "https://10otb.ru/content/dokuments/6gmk_scan/journal_bd_1944-03-1-31/0_oblozhka.jpg"},
-		4: {Id: 4, Name: "Список раненых", Description: "Список раненых — документ, содержащий информацию о военнослужащих, получивших ранения во время боевых действий.", Image: "https://www.prlib.ru/sites/default/files/book_preview/d48d307a-f81b-495b-a6b8-6e7192cfa3bb/12976930_doc1.jpg"},
-		5: {Id: 5, Name: "Список погибших", Description: "Список погибших — документ, содержащий информацию о военнослужащих, погибших в результате военных действий. Ведется в штабе объединения, соединения, воинской части", Image: "https://ic.pics.livejournal.com/vagante_travel/50304595/19851/19851_original.jpg"},
-		7: {Id: 7, Name: "Список военнопленных", Description: "База данных советских военнопленных» содержит персональные данные о советских военнопленных во время Второй мировой войны, находившихся под стражей в лагерях для военнопленных или в трудовых командах на территории бывшего германского рейха. Обнародованная база данных включает в себя базовую информацию: имена и фамилии военнопленных, дату рождения и дату смерти.", Image: "https://russian7.ru/wp-content/uploads/2015/02/1678_434498865_big.jpg"},
+	documentsData := []Document{
+		{Document_id: 0, Title: "Орден Отечественной войны II степени", Description: "Орден Отечественной войны II степени — советское государственное наградное учреждение, учреждённое Указом Президиума Верховного Совета СССР от 20 мая 1942 года «За установление и укрепление военного порядка, за отличие в обороне Советского Союза и в освобождении его территорий от немецко-фашистских захватчиков».", Image_url: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Order_of_the_Patriotic_War_%281st_class%29.png", Status: "active"},
+		{Document_id: 1, Title: "ЖБД 34-й стрелковой дивизии", Description: "Журнал боевых действий 34-й стрелковой дивизии", Image_url: "https://sun9-61.userapi.com/impf/1_k_ogYH4PDdygGmvhKaYvlD2_zzlzLkO3pzqg/CSPpSw6FUoc.jpg?size=1280x940&quality=96&sign=f84827e9b86a1635ba031b60d6615d85&type=album", Status: "active"},
+		{Document_id: 2, Title: "Оперативный отдел штаба 49 армии", Description: "Отчёт о боевых действиях на Западном направлении. Обеспечение операции материальными ресурсами, инженерным обеспечением, потери в операции", Image_url: "https://podvignaroda.ru/filter/filterimage?path=TV/001/208-0002511-1042/00000167.jpg&id=60332603&id1=a97e93049bac29beadfad6636e96ba21", Status: "active"},
+		{Document_id: 3, Title: "15.12.1941 Штаб ВПУ Юго-Западного фронта", Description: "Боевые сводки потерь противника.", Image_url: "https://podvignaroda.ru/filter/filterimage?path=TV/001/251-0000646-0051/00000315.jpg&id=60113134&id1=7db41e7f93af57d1cd6f17add3648de3", Status: "active"},
+		{Document_id: 4, Title: "Орден Красного Знамени", Description: "Орден Красного Знамени — советское государственное наградное учреждение, учреждённое Указом Президиума Верховного Совета СССР от 6 ноября 1943 года «За отличие в бою и в других боевых операциях в защите Советского Союза и в освобождении его территорий от немецко-фашистских захватчиков».", Image_url: "https://podvignaroda.ru/img/awards/new/Orden_Krasnogo_Znameni_1st.png", Status: "active"},
 	}
 
 	r.GET("/", func(c *gin.Context) {
-		search := strings.ToLower(c.Query("search"))
+		searchDocument := strings.ToLower(c.Query("document"))
 
-		filteredServiceData := []Service{}
+		filteredServiceData := []Document{}
 
-		for _, service := range serviceData {
-			service_name := strings.ToLower(service.Name)
-			if search == "" || strings.Contains(service_name, search) {
+		for _, service := range documentsData {
+			service_name := strings.ToLower(service.Title)
+			if searchDocument == "" || strings.Contains(service_name, searchDocument) {
 				filteredServiceData = append(filteredServiceData, service)
 			}
 		}
 
+		log.Println(filteredServiceData)
+
 		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title":    "Книга памяти",
-			"search":   search,
-			"services": filteredServiceData,
+			"title":     "Книга памяти",
+			"search":    searchDocument,
+			"documents": filteredServiceData,
 		})
 	})
 
-	r.GET("/service/:id", func(c *gin.Context) {
+	r.GET("/document/:id", func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
@@ -66,17 +61,23 @@ func StartServer() {
 			return
 		}
 
-		service, ok := serviceData[id]
+		service := Document{}
 
-		if !ok {
-			c.String(http.StatusNotFound, "Not found")
-			return
+		for _, s := range documentsData {
+			if s.Document_id == id {
+				service = s
+				break
+			}
 		}
 
-		c.HTML(http.StatusOK, "service.html", gin.H{
-			"title":   service.Name,
-			"service": service,
-		})
+		if service != (Document{}) {
+			c.HTML(http.StatusOK, "document.html", gin.H{
+				"title":    service.Title,
+				"document": service,
+			})
+		} else {
+			c.HTML(http.StatusOK, "404.html", gin.H{})
+		}
 	})
 
 	r.Static("/static", "./static/")

@@ -15,19 +15,21 @@
 
 <div class="container">
     <ul class="card-list">
-        {{ if .search }}
-        <h1>Результаты поиска: «{{ .search }}»</h1>
-        {{ else }}
-        <h1>Выбери услугу</h1>
-        {{ end }}
+        <form class="search" action="/" method="get">
+            <input class="search-input" name="document" placeholder="Поиск документа..." type="text"
+                value="{{ .search }}">
+            <img src="/static/svg/search.svg" alt="">
+        </form>
 
-        {{ range .services }}
+        <h1>Выбери услугу</h1>
+
+        {{ range .documents }}
         <li class="card">
-            <img src="{{ .Image }}" alt="" class="card-image">
+            <img src="{{ .Image_url }}" alt="" class="card-image">
             <div class="card-content">
-                <h3 class="card-title">{{ .Name }}</h3>
+                <h3 class="card-title">{{ .Title }}</h3>
                 <p class="card-description">{{ .Description }}</p>
-                <a class="link" href="/service/{{ .Id }}">Подробнее</a>
+                <a class="link" href="/document/{{ .Document_id }}">Подробнее</a>
             </div>
         </li>
         {{ end }}
