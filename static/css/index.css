@@ -115,14 +115,15 @@
   display: flex;
   align-self: center;
   border-radius: var(--border-radius);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   padding-left: var(--space-xl);
   height: 56px;
-  width: 400px;
+  width: 100%;
+  /* width: 400px; */
 }
 
 .search-input {
-  color: var(--text-primary-invert);
+  color: var(--text-primary);
   outline: none;
   background-color: transparent;
   border: none;
@@ -130,7 +131,7 @@
 }
 
 .search-input::placeholder {
-  color: var(--text-secondary-invert);
+  color: var(--text-secondary);
 }
 
 .userbar {
