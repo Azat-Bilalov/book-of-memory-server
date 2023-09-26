@@ -81,7 +81,7 @@ func (a *Application) StartServer() {
 		})
 	})
 
-	r.GET("/document/:id/delete", func(c *gin.Context) {
+	r.POST("/document/:id/delete", func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {

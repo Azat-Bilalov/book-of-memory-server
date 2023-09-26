@@ -297,6 +297,7 @@
   border: 2px solid var(--button-bg-primary);
   color: var(--button-bg-primary);
   fill: var(--button-bg-primary);
+  background-color: transparent;
 }
 
 .button_outline_primary:hover {

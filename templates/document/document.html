@@ -20,12 +20,12 @@
                 <span>ОСТАВИТЬ ЗАЯВКУ</span>
                 <img src="/static/svg/arrow-right.svg" alt="" class="button-icon">
             </button>
-            <a href="/document/{{ .document.Document_id }}/delete"
-                class="button button_outline_primary button_size_large">
-                <span>УДАЛИТЬ ДОКУМЕНТ</span>
-                🗑️
-                <!-- <img src="/static/svg/arrow-right.svg" alt="" class="button-icon"> -->
-            </a>
+            <form action="/document/{{ .document.Document_id }}/delete" method="POST">
+                <button class="button button_outline_primary button_size_large">
+                    <span>УДАЛИТЬ ДОКУМЕНТ</span>
+                    🗑️
+                </button>
+            </form>
         </div>
     </div>
 </div>
