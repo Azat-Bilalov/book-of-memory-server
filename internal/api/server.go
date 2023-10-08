@@ -44,11 +44,9 @@ func StartServer() {
 			}
 		}
 
-		log.Println(filteredServiceData)
-
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title":     "Книга памяти",
-			"search":    searchDocument,
+			"search":    c.Query("document"),
 			"documents": filteredServiceData,
 		})
 	})
