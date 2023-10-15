@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/Azat-Bilalov/book-of-memory-server/internal/app/config"
 	"github.com/Azat-Bilalov/book-of-memory-server/internal/app/dsn"
 	"github.com/Azat-Bilalov/book-of-memory-server/internal/app/repository"
 	"github.com/joho/godotenv"
@@ -16,6 +17,8 @@ func New() (Application, error) {
 	if err != nil {
 		return Application{}, err
 	}
+
+	config.Connect()
 
 	return Application{repository: repo}, nil
 }

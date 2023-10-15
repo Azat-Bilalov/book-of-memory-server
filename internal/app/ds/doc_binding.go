@@ -1,6 +1,6 @@
 package ds
 
 type DocBinding struct {
-	BindingID  uint `gorm:"primaryKey"`
-	DocumentID uint `gorm:"primaryKey"`
+	Binding_id  uint `gorm:"primaryKey"`
+	Document_id uint `gorm:"primaryKey"`
 }

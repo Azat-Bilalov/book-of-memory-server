@@ -3,7 +3,7 @@ package ds
 import "time"
 
 type Veteran struct {
-	VeteranID  uint   `gorm:"primaryKey"`
+	Veteran_id uint   `gorm:"primaryKey"`
 	FirstName  string `gorm:"not null"`
 	LastName   string `gorm:"not null"`
 	Patronymic string

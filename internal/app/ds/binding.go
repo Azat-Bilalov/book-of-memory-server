@@ -3,7 +3,7 @@ package ds
 import "time"
 
 type Binding struct {
-	BindingID   uint   `gorm:"primaryKey"`
+	Binding_id  uint   `gorm:"primaryKey"`
 	Status      string `gorm:"not null;check:status IN ('entered', 'in_progress', 'completed', 'canceled', 'deleted')"`
 	Info        string `gorm:"type:text"`
 	FileURL     string
