@@ -9,6 +9,7 @@ type InterfaceDocumentRepository interface {
 	Store(document *ds.Document) (*ds.Document, error)
 	FindAll(status string, title string) ([]*ds.Document, error)
 	FindByUUID(uuid string) (*ds.Document, error)
+	CountWithImageUrl(imageUrl string) (int64, error)
 	UpdateByUUID(document *ds.Document) (*ds.Document, error)
 }
 
@@ -51,17 +52,15 @@ func (r *DocumentRepository) FindByUUID(uuid string) (*ds.Document, error) {
 	return document, nil
 }
 
-// FindWithStatus возвращает документы из базы данных по статусу
-// func (r *DocumentRepository) FindWithStatus(status string) ([]*ds.Document, error) {
-// 	documents := make([]*ds.Document, 0)
-
-// 	err := r.db.Find(&documents, "status = ?", status).Error
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return documents, nil
-// }
+// CountWithImageUrl возвращает количество документов с такой же ссылкой на изображение
+func (r *DocumentRepository) CountWithImageUrl(imageUrl string) (int64, error) {
+	var count int64
+	err := r.db.Model(&ds.Document{}).Where("image_url = ?", imageUrl).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
 
 // UpdateByUUID обновляет документ в базе данных по UUID
 func (r *DocumentRepository) UpdateByUUID(document *ds.Document) (*ds.Document, error) {

@@ -16,15 +16,20 @@ func NewDocumentHandler(documentUsecase *usecase.DocumentUsecase) *DocumentHandl
 }
 
 func (h *DocumentHandler) CreateDocument(c echo.Context) error {
-	req := ds.DocumentCreateRequest{}
+	req := ds.DocumentRequest{}
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
+	image, err := c.FormFile("image")
+	if err != nil {
+		return c.JSON(400, err.Error())
+	}
+	req.Image = image
 	document, err := h.documentUsecase.CreateDocument(req)
 	if err != nil {
-		return err
+		return c.JSON(400, err.Error())
 	}
-	return c.JSON(201, document)
+	return c.JSON(200, document)
 }
 
 func (h *DocumentHandler) FindActiveDocuments(c echo.Context) error {
@@ -53,10 +58,15 @@ func (h *DocumentHandler) UpdateDocumentByUUID(c echo.Context) error {
 	if !IsValidUUID(uuid) {
 		return c.NoContent(404)
 	}
-	req := ds.DocumentUpdateRequest{}
+	req := ds.DocumentRequest{}
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
+	image, err := c.FormFile("image")
+	if err != nil {
+		return c.JSON(400, err.Error())
+	}
+	req.Image = image
 	document, err := h.documentUsecase.UpdateDocumentByUUID(uuid, req)
 	if err != nil {
 		return err
@@ -71,7 +81,7 @@ func (h *DocumentHandler) DeleteDocumentByUUID(c echo.Context) error {
 	}
 	err := h.documentUsecase.DeleteDocumentByUUID(uuid)
 	if err != nil {
-		return err
+		return c.JSON(404, err.Error())
 	}
 	return c.NoContent(204)
 }

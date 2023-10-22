@@ -1,6 +1,9 @@
 package ds
 
-import "time"
+import (
+	"mime/multipart"
+	"time"
+)
 
 const (
 	DOCUMENT_STATUS_ACTIVE  = "active"
@@ -16,14 +19,15 @@ type Document struct {
 	CreatedAt   time.Time
 }
 
-type DocumentCreateRequest struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Image_url   string `json:"image_url"`
+type DocumentRequest struct {
+	Title       string                `form:"title" binding:"required"`
+	Description string                `form:"description" binding:"required"`
+	Image       *multipart.FileHeader `form:"image" binding:"required"`
 }
 
-type DocumentUpdateRequest struct {
+type DocumentResponse struct {
+	Document_id string `json:"document_id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	Image_url   string `json:"image_url"`
+	Image       string `json:"image"`
 }

@@ -29,9 +29,11 @@ func (a *Application) StartServer() {
 	routes.InitBindingRoutes(e, bindingHandler)
 
 	documentRepository := repository.NewDocumentRepository(config.DB)
-	documentUsecase := usecase.NewDocumentUsecase(documentRepository, bindingRepository, docBindingRepository)
+	documentUsecase := usecase.NewDocumentUsecase(documentRepository, bindingRepository, docBindingRepository, userRepository)
 	documentHandler := handler.NewDocumentHandler(documentUsecase)
 	routes.InitDocumentRoutes(e, documentHandler)
+
+	routes.InitFileRoutes(e, handler.NewFileHandler())
 
 	e.Logger.Fatal(e.Start(":8080"))
 	log.Println("Server down")
