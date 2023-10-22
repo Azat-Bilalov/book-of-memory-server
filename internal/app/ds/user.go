@@ -1,9 +1,16 @@
 package ds
 
-import "time"
+import (
+	"time"
+)
+
+const (
+	USER_ROLE_MODERATOR = "moderator"
+	USER_ROLE_USER      = "user"
+)
 
 type User struct {
-	User_id   uint   `gorm:"primaryKey"`
+	User_id   string `gorm:"primaryKey"`
 	FirstName string `gorm:"not null"`
 	LastName  string `gorm:"not null"`
 	Email     string `gorm:"unique"`
@@ -24,4 +31,13 @@ type UserUpdateRequest struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Passwd    string `json:"passwd"`
+}
+
+type UserResponse struct {
+	User_id   string `json:"user_id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Role      string `json:"role"`
+	CreatedAt string `json:"created_at"`
 }
