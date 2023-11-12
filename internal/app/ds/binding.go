@@ -19,10 +19,16 @@ type Binding struct {
 	UserID      string     `gorm:"not null"`
 	ModeratorID string     `gorm:"not null"`
 	VeteranID   *string    `gorm:"not null"`
+	User        *User      `gorm:"hasOne:users;foreignKey:user_id;references:user_id;"`
+	Moderator   *User      `gorm:"hasOne:users;foreignKey:moderator_id;references:user_id;"`
 	Veteran     *Veteran   `gorm:"foreignKey:veteran_id;references:veteran_id"`
 	Documents   []Document `gorm:"many2many:doc_bindings;foreignKey:binding_id;joinForeignKey:binding_id;References:document_id;JoinReferences:document_id"`
 }
 
 type BindingUpdateRequest struct {
 	VeteranID string `json:"veteran_id"`
+}
+
+type BindingStatusUpdateRequest struct {
+	Status string `json:"status"`
 }

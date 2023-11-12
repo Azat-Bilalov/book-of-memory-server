@@ -18,6 +18,7 @@ func (a *Application) StartServer() {
 	e := echo.New()
 
 	e.Use(middleware.Recover())
+	e.Use(middleware.Logger())
 
 	userRepository := repository.NewUserRepository(config.DB)
 	veteranRepository := repository.NewVeteranRepository(config.DB)

@@ -8,7 +8,6 @@ import (
 type InterfaceDocBindingRepository interface {
 	Store(docBinding *ds.DocBinding) (*ds.DocBinding, error)
 	Find(documentID string, bindingID string) (*ds.DocBinding, error)
-	Update(docBinding *ds.DocBinding) error
 	Delete(documentID string, bindingID string) error
 }
 
@@ -35,10 +34,6 @@ func (r *DocBindingRepository) Find(documentID string, bindingID string) (*ds.Do
 		return nil, err
 	}
 	return docBinding, nil
-}
-
-func (r *DocBindingRepository) Update(docBinding *ds.DocBinding) error {
-	return r.db.Save(docBinding).Error
 }
 
 func (r *DocBindingRepository) Delete(documentID string, bindingID string) error {

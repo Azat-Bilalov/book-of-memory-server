@@ -22,7 +22,7 @@ func (h *BindingHandler) FindBindings(c echo.Context) error {
 		dateTo   = c.QueryParam("date_to")
 	)
 	if userID == "" || !IsValidUUID(userID) {
-		return c.JSON(400, "user id is empty or invalid")
+		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
 	bindings, err := h.bindingUsecase.FindBindingsByUserID(userID, status, dateFrom, dateTo)
 	if err != nil {
@@ -34,40 +34,40 @@ func (h *BindingHandler) FindBindings(c echo.Context) error {
 func (h *BindingHandler) FindBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
-		return c.JSON(400, "uuid is invalid")
+		return c.JSON(400, "недействительный идентификатор")
 	}
 	userID := c.Request().Header.Get("x-user-id")
 	if userID == "" || !IsValidUUID(userID) {
-		return c.JSON(400, "user id is empty or invalid")
+		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
 	binding, err := h.bindingUsecase.FindBindingByUUID(uuid)
 	if err != nil {
-		return c.JSON(404, err.Error())
+		return c.JSON(404, "заявка не найдена")
 	}
 	if binding.UserID != userID && binding.ModeratorID != userID {
 		return c.NoContent(403)
 	}
-	return c.JSON(200, binding)
+	return c.JSONPretty(200, binding, " ")
 }
 
 func (h *BindingHandler) UpdateBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
-		return c.JSON(400, "uuid is invalid")
+		return c.JSON(400, "недействительный идентификатор")
 	}
 	userID := c.Request().Header.Get("x-user-id")
 	if userID == "" || !IsValidUUID(userID) {
-		return c.JSON(400, "user id is empty or invalid")
+		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
 	binding, err := h.bindingUsecase.FindBindingByUUID(uuid)
 	if err != nil {
-		return c.JSON(404, err.Error())
+		return c.JSON(404, "заявка не найдена")
 	}
 	if binding.UserID != userID && binding.ModeratorID != userID {
 		return c.NoContent(403)
 	}
 	if binding.Status != ds.BINDING_STATUS_ENTERED && binding.Status != ds.BINDING_STATUS_IN_PROGRESS {
-		return c.JSON(400, "status is not entered or in_progress")
+		return c.JSON(400, "статус не является entered или in_progress")
 	}
 	req := ds.BindingUpdateRequest{}
 	if err := c.Bind(&req); err != nil {
@@ -83,24 +83,24 @@ func (h *BindingHandler) UpdateBindingByUUID(c echo.Context) error {
 func (h *BindingHandler) SubmitBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
-		return c.JSON(400, "uuid is invalid")
+		return c.JSON(400, "недействительный идентификатор")
 	}
 	userID := c.Request().Header.Get("x-user-id")
 	if userID == "" || !IsValidUUID(userID) {
-		return c.JSON(400, "user id is empty or invalid")
+		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
 	binding, err := h.bindingUsecase.FindBindingByUUID(uuid)
 	if err != nil {
-		return c.JSON(404, err.Error())
+		return c.JSON(404, "заявка не найдена")
 	}
 	if binding.UserID != userID {
 		return c.NoContent(403)
 	}
 	if binding.Status != ds.BINDING_STATUS_ENTERED {
-		return c.JSON(400, "status is not entered")
+		return c.JSON(400, "статус не является entered")
 	}
 	if binding.VeteranID == nil {
-		return c.JSON(400, "veteran is not set")
+		return c.JSON(400, "ветеран не установлен")
 	}
 	binding, err = h.bindingUsecase.SubmitBindingByUUID(uuid)
 	if err != nil {
@@ -109,52 +109,37 @@ func (h *BindingHandler) SubmitBindingByUUID(c echo.Context) error {
 	return c.JSON(200, binding)
 }
 
-func (h *BindingHandler) AcceptBindingByUUID(c echo.Context) error {
-	uuid := c.Param("uuid")
-	if !IsValidUUID(uuid) {
-		return c.JSON(400, "uuid is invalid")
-	}
-	moderatorID := c.Request().Header.Get("x-user-id")
-	if moderatorID == "" || !IsValidUUID(moderatorID) {
-		return c.JSON(400, "moderator id is empty or invalid")
-	}
-	binding, err := h.bindingUsecase.FindBindingByUUID(uuid)
-	if err != nil {
-		return c.JSON(404, err.Error())
-	}
-	if binding.ModeratorID != moderatorID {
-		return c.NoContent(403)
-	}
-	if binding.Status != ds.BINDING_STATUS_IN_PROGRESS {
-		return c.JSON(400, "status is not in_progress")
-	}
-	binding, err = h.bindingUsecase.AcceptBindingByUUID(uuid)
-	if err != nil {
-		return c.JSON(400, err.Error())
-	}
-	return c.JSON(200, binding)
-}
-
-func (h *BindingHandler) RejectBindingByUUID(c echo.Context) error {
+func (h *BindingHandler) AcceptRejectBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
 		return c.NoContent(404)
 	}
 	moderatorID := c.Request().Header.Get("x-user-id")
 	if moderatorID == "" || !IsValidUUID(moderatorID) {
-		return c.JSON(400, "moderator id is empty or invalid")
+		return c.JSON(400, "идентификатор модератора пустой или недействительный")
 	}
 	binding, err := h.bindingUsecase.FindBindingByUUID(uuid)
 	if err != nil {
-		return c.JSON(404, err.Error())
+		return c.JSON(404, "заявка не найдена")
 	}
 	if binding.ModeratorID != moderatorID {
 		return c.NoContent(403)
 	}
 	if binding.Status != ds.BINDING_STATUS_IN_PROGRESS {
-		return c.JSON(400, "status is not in_progress")
+		return c.JSON(400, "статус не является in_progress")
 	}
-	binding, err = h.bindingUsecase.RejectBindingByUUID(uuid)
+	req := ds.BindingStatusUpdateRequest{}
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(400, err.Error())
+	}
+	switch req.Status {
+	case ds.BINDING_STATUS_COMPLETED:
+		binding, err = h.bindingUsecase.AcceptBindingByUUID(uuid)
+	case ds.BINDING_STATUS_CANCELED:
+		binding, err = h.bindingUsecase.RejectBindingByUUID(uuid)
+	default:
+		return c.JSON(400, "статус недействителен")
+	}
 	if err != nil {
 		return c.JSON(400, err.Error())
 	}
@@ -168,7 +153,7 @@ func (h *BindingHandler) DeleteBindingByUUID(c echo.Context) error {
 	}
 	userID := c.Request().Header.Get("x-user-id")
 	if userID == "" || !IsValidUUID(userID) {
-		return c.JSON(400, "user id is empty or invalid")
+		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
 	binding, err := h.bindingUsecase.FindBindingByUUID(uuid)
 	if err != nil {
@@ -178,7 +163,7 @@ func (h *BindingHandler) DeleteBindingByUUID(c echo.Context) error {
 		return c.NoContent(403)
 	}
 	if binding.Status != ds.BINDING_STATUS_ENTERED {
-		return c.JSON(400, "status is not entered")
+		return c.JSON(400, "статус не является entered")
 	}
 	err = h.bindingUsecase.DeleteBindingByUUID(uuid)
 	if err != nil {

@@ -31,3 +31,8 @@ type DocumentResponse struct {
 	Description string `json:"description"`
 	Image       string `json:"image"`
 }
+
+type DocumentListResponse struct {
+	Documents         []*Document `json:"documents"`
+	EnteredBinding_id *string     `json:"entered_binding_id"`
+}

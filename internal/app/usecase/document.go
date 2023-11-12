@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	BUSKET     = "documents"
-	STATIC_URL = "http://localhost:8080/files/" + BUSKET
+	BUSKET = "documents"
 )
 
 type InterfaceDocumentUsecase interface {
@@ -21,8 +20,7 @@ type InterfaceDocumentUsecase interface {
 	FindActiveDocumentByUUID(uuid string) (*ds.Document, error)
 	UpdateDocumentByUUID(uuid string, document ds.DocumentRequest) (*ds.Document, error)
 	DeleteDocumentByUUID(uuid string) error
-	FindDocumentInBinding(bindingID string, documentID string) (*ds.DocBinding, error)
-	AddDocumentToBindingByUUID(documentID string, userID string, docBinding ds.DocBindingRequest) error
+	AddDocumentToBindingByUUID(documentID string, userID string, docBinding ds.DocBinding) error
 	RemoveDocumentFromBindingByUUID(documentID string, userID string) error
 }
 
@@ -56,15 +54,28 @@ func (u *DocumentUsecase) CreateDocument(document ds.DocumentRequest) (*ds.Docum
 	d := &ds.Document{
 		Title:       document.Title,
 		Description: document.Description,
-		Image_url:   STATIC_URL + "/" + document.Image.Filename,
+		Image_url:   BUSKET + "/" + document.Image.Filename,
 		Status:      ds.DOCUMENT_STATUS_ACTIVE,
 	}
 
 	return u.documentRepository.Store(d)
 }
 
-func (u *DocumentUsecase) FindActiveDocuments(title string) ([]*ds.Document, error) {
-	return u.documentRepository.FindAll(ds.DOCUMENT_STATUS_ACTIVE, title)
+func (u *DocumentUsecase) FindActiveDocuments(title string, userID string) (*ds.DocumentListResponse, error) {
+	documents, err := u.documentRepository.FindAll(ds.DOCUMENT_STATUS_ACTIVE, title)
+	if err != nil {
+		return nil, err
+	}
+	documentList := &ds.DocumentListResponse{}
+	documentList.Documents = documents
+	documentList.EnteredBinding_id = nil
+	if userID != "" {
+		enteredBinding, err := u.bindingRepository.FindLastEnteredBindingByUserID(userID)
+		if err == nil {
+			documentList.EnteredBinding_id = &enteredBinding.Binding_id
+		}
+	}
+	return documentList, nil
 }
 
 func (u *DocumentUsecase) FindActiveDocumentByUUID(uuid string) (*ds.Document, error) {
@@ -72,18 +83,12 @@ func (u *DocumentUsecase) FindActiveDocumentByUUID(uuid string) (*ds.Document, e
 	if err != nil {
 		return nil, err
 	}
-	if document.Status != ds.DOCUMENT_STATUS_ACTIVE {
-		return nil, nil
-	}
 	return document, nil
 }
 
 func (u *DocumentUsecase) UpdateDocumentByUUID(uuid string, document ds.DocumentRequest) (*ds.Document, error) {
 	d, err := u.documentRepository.FindByUUID(uuid)
-	if err != nil {
-		return nil, err
-	}
-	if d.Status != ds.DOCUMENT_STATUS_ACTIVE {
+	if err != nil || d.Status != ds.DOCUMENT_STATUS_ACTIVE {
 		return nil, errors.New("document not found")
 	}
 	countDocumentsWithImageUrl, err := u.documentRepository.CountWithImageUrl(d.Image_url)
@@ -91,7 +96,7 @@ func (u *DocumentUsecase) UpdateDocumentByUUID(uuid string, document ds.Document
 		return nil, err
 	}
 	if countDocumentsWithImageUrl == 1 {
-		imageName := d.Image_url[len(STATIC_URL)+1:]
+		imageName := d.Image_url[len(BUSKET)+1:]
 		err = config.DeleteObject(BUSKET, imageName)
 		if err != nil {
 			return nil, err
@@ -112,7 +117,7 @@ func (u *DocumentUsecase) UpdateDocumentByUUID(uuid string, document ds.Document
 		Document_id: uuid,
 		Title:       document.Title,
 		Description: document.Description,
-		Image_url:   STATIC_URL + "/" + document.Image.Filename,
+		Image_url:   BUSKET + "/" + document.Image.Filename,
 		Status:      ds.DOCUMENT_STATUS_ACTIVE,
 	}
 
@@ -139,7 +144,7 @@ func (u *DocumentUsecase) DeleteDocumentByUUID(uuid string) error {
 	if countDocumentsWithImageUrl > 1 {
 		return nil
 	}
-	imageName := document.Image_url[len(STATIC_URL)+1:]
+	imageName := document.Image_url[len(BUSKET)+1:]
 	err = config.DeleteObject(BUSKET, imageName)
 	if err != nil {
 		return err
@@ -147,11 +152,7 @@ func (u *DocumentUsecase) DeleteDocumentByUUID(uuid string) error {
 	return nil
 }
 
-func (u *DocumentUsecase) FindDocumentInBinding(bindingID string, documentID string) (*ds.DocBinding, error) {
-	return u.docBindingRepository.Find(documentID, bindingID)
-}
-
-func (u *DocumentUsecase) AddDocumentToBindingByUUID(documentID string, userID string, docBindingRequest ds.DocBindingRequest) error {
+func (u *DocumentUsecase) AddDocumentToBindingByUUID(documentID string, userID string, docBindingRequest ds.DocBinding) error {
 	binding, err := u.bindingRepository.FindLastEnteredBindingByUserID(userID)
 	if err == gorm.ErrRecordNotFound {
 		moderators, err := u.userRepository.FindAllModerators()
@@ -159,7 +160,7 @@ func (u *DocumentUsecase) AddDocumentToBindingByUUID(documentID string, userID s
 			return err
 		}
 		if len(moderators) == 0 {
-			return errors.New("moderators not found")
+			return errors.New("модераторы не найдены")
 		}
 		randomModerator := moderators[rand.Intn(len(moderators))]
 		binding = &ds.Binding{
@@ -172,23 +173,16 @@ func (u *DocumentUsecase) AddDocumentToBindingByUUID(documentID string, userID s
 			return err
 		}
 	}
-	docBinding, err := u.docBindingRepository.Find(documentID, binding.Binding_id)
-	if err == gorm.ErrRecordNotFound {
-		docBinding = &ds.DocBinding{
-			Binding_id:  binding.Binding_id,
-			Document_id: documentID,
-			File_url:    docBindingRequest.File_url,
-			Info:        docBindingRequest.Info,
-		}
-		_, err = u.docBindingRepository.Store(docBinding)
-		return err
+	_, err = u.docBindingRepository.Find(documentID, binding.Binding_id)
+	if err != gorm.ErrRecordNotFound {
+		return errors.New("документ уже добавлен в заявку")
 	}
-	if err != nil {
-		return err
+	docBinding := &ds.DocBinding{
+		Binding_id:  binding.Binding_id,
+		Document_id: documentID,
 	}
-	docBinding.File_url = docBindingRequest.File_url
-	docBinding.Info = docBindingRequest.Info
-	return u.docBindingRepository.Update(docBinding)
+	_, err = u.docBindingRepository.Store(docBinding)
+	return err
 }
 
 func (u *DocumentUsecase) RemoveDocumentFromBindingByUUID(documentID string, userID string) error {

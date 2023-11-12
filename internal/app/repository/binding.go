@@ -77,7 +77,17 @@ func (r *BindingRepository) FindAllByVeteranID(veteranID string, status string, 
 
 func (r *BindingRepository) FindByUUID(uuid string) (*ds.Binding, error) {
 	binding := &ds.Binding{}
-	err := r.db.Preload("Documents").Preload("Veteran").First(binding, "binding_id = ?", uuid).Error
+	err := r.db.
+		Preload("Documents").
+		Preload("Veteran").
+		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+			return db.Select("user_id, first_name, last_name, email")
+		}).
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("user_id, first_name, last_name, email")
+		}).
+		First(binding, "binding_id = ?", uuid).
+		Error
 	if err != nil {
 		return nil, err
 	}

@@ -33,10 +33,14 @@ func (h *DocumentHandler) CreateDocument(c echo.Context) error {
 }
 
 func (h *DocumentHandler) FindActiveDocuments(c echo.Context) error {
+	userID := c.Request().Header.Get("x-user-id")
+	if userID != "" && !IsValidUUID(userID) {
+		c.JSON(400, "идентификатор пользователя не валидный")
+	}
 	title := c.QueryParam("title")
-	documents, err := h.documentUsecase.FindActiveDocuments(title)
+	documents, err := h.documentUsecase.FindActiveDocuments(title, userID)
 	if err != nil {
-		return err
+		return c.JSON(404, "документы не найдены")
 	}
 	return c.JSON(200, documents)
 }
@@ -45,10 +49,7 @@ func (h *DocumentHandler) FindActiveDocumentByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	document, err := h.documentUsecase.FindActiveDocumentByUUID(uuid)
 	if err != nil {
-		return err
-	}
-	if document == nil {
-		return c.NoContent(404)
+		return c.JSON(404, "document not found")
 	}
 	return c.JSON(200, document)
 }
@@ -86,38 +87,22 @@ func (h *DocumentHandler) DeleteDocumentByUUID(c echo.Context) error {
 	return c.NoContent(204)
 }
 
-func (h *DocumentHandler) FindDocumentInBinding(c echo.Context) error {
-	bindingUUID := c.Param("uuid-binding")
-	if !IsValidUUID(bindingUUID) {
-		return c.NoContent(404)
-	}
-	documentUUID := c.Param("uuid-document")
-	if !IsValidUUID(documentUUID) {
-		return c.NoContent(404)
-	}
-	document, err := h.documentUsecase.FindDocumentInBinding(bindingUUID, documentUUID)
-	if err != nil {
-		return c.JSON(404, err.Error())
-	}
-	return c.JSON(200, document)
-}
-
 func (h *DocumentHandler) AddDocumentToBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
-		return c.NoContent(404)
+		return c.JSON(400, "идентификатор документа пустой или неверный")
 	}
 	userID := c.Request().Header.Get("x-user-id")
 	if userID == "" || !IsValidUUID(userID) {
-		return c.JSON(400, "user id is empty or invalid")
+		return c.JSON(400, "идентификатор пользователя не валидный")
 	}
-	req := ds.DocBindingRequest{}
+	req := ds.DocBinding{}
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
 	_, err := h.documentUsecase.FindActiveDocumentByUUID(uuid)
 	if err != nil {
-		return c.JSON(404, err.Error())
+		return c.JSON(404, "документ не найден")
 	}
 	err = h.documentUsecase.AddDocumentToBindingByUUID(uuid, userID, req)
 	if err != nil {
@@ -133,11 +118,11 @@ func (h *DocumentHandler) RemoveDocumentFromBindingByUUID(c echo.Context) error 
 	}
 	userID := c.Request().Header.Get("x-user-id")
 	if userID == "" || !IsValidUUID(userID) {
-		return c.JSON(400, "user id is empty or invalid")
+		return c.JSON(400, "идентификатор пользователя пустой или неверный")
 	}
 	_, err := h.documentUsecase.FindActiveDocumentByUUID(uuid)
 	if err != nil {
-		return c.JSON(404, err.Error())
+		return c.JSON(404, "документ не найден")
 	}
 	err = h.documentUsecase.RemoveDocumentFromBindingByUUID(uuid, userID)
 	if err != nil {
