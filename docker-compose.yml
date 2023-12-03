@@ -12,7 +12,17 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: book_of_memory
       POSTGRES_PASSWORD: 1234
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass password
+    volumes:
+      - redis-data:/data
 
 volumes:
   postgresdb-data:
+    driver: local
+  redis-data:
     driver: local

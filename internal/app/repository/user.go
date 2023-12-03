@@ -10,6 +10,7 @@ type InterfaceUserRepository interface {
 	FindAllUsers() ([]*ds.User, error)
 	FindAllModerators() ([]*ds.User, error)
 	FindByUUID(uuid string) (*ds.User, error)
+	FindByEmail(email string) (*ds.User, error)
 	UpdateByUUID(user *ds.User) (*ds.User, error)
 }
 
@@ -50,6 +51,15 @@ func (r *UserRepository) FindAllModerators() ([]*ds.User, error) {
 func (r *UserRepository) FindByUUID(uuid string) (*ds.User, error) {
 	user := &ds.User{}
 	err := r.db.First(user, "user_id = ?", uuid).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (r *UserRepository) FindByEmail(email string) (*ds.User, error) {
+	user := &ds.User{}
+	err := r.db.First(user, "email = ?", email).Error
 	if err != nil {
 		return nil, err
 	}

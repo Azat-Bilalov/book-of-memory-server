@@ -9,8 +9,8 @@ import (
 
 type InterfaceBindingRepository interface {
 	Store(binding *ds.Binding) (*ds.Binding, error)
+	FindAll(status string, timeFrom *time.Time, timeTo *time.Time) ([]*ds.Binding, error)
 	FindAllByUserID(userID string, status string, timeFrom *time.Time, timeTo *time.Time) ([]*ds.Binding, error)
-	FindAllByModeratorID(moderatorID string, status string, timeFrom *time.Time, timeTo *time.Time) ([]*ds.Binding, error)
 	FindAllByVeteranID(veteranID string, status string, dateFrom string, dateTo string) ([]*ds.Binding, error)
 	FindByUUID(uuid string) (*ds.Binding, error)
 	FindLastEnteredBindingByUserID(userID string) (*ds.Binding, error)
@@ -34,6 +34,27 @@ func (r *BindingRepository) Store(binding *ds.Binding) (*ds.Binding, error) {
 	return binding, nil
 }
 
+func (r *BindingRepository) FindAll(status string, timeFrom *time.Time, timeTo *time.Time) ([]*ds.Binding, error) {
+	bindings := make([]*ds.Binding, 0)
+	if timeFrom == nil && timeTo == nil {
+		err := r.db.Find(&bindings, "? = '' OR status = ?", status, status).Error
+		if err != nil {
+			return nil, err
+		}
+		return bindings, nil
+	}
+	query := r.db.
+		Table("bindings").
+		Where("? = '' OR status = ?", status, status).
+		Where("formatted_at >= ?", timeFrom).
+		Where("formatted_at <= ?", timeTo).
+		Order("created_at DESC")
+	if err := query.Find(&bindings).Error; err != nil {
+		return nil, err
+	}
+	return bindings, nil
+}
+
 func (r *BindingRepository) FindAllByUserID(userID string, status string, timeFrom *time.Time, timeTo *time.Time) ([]*ds.Binding, error) {
 	bindings := make([]*ds.Binding, 0)
 	if timeFrom == nil && timeTo == nil {
@@ -43,23 +64,12 @@ func (r *BindingRepository) FindAllByUserID(userID string, status string, timeFr
 		}
 		return bindings, nil
 	}
-	query := r.db.Table("bindings").Where("user_id = ?", userID).Where("? = '' OR status = ?", status, status).Where("formatted_at >= ?", timeFrom).Where("formatted_at <= ?", timeTo).Order("created_at DESC")
-	if err := query.Find(&bindings).Error; err != nil {
-		return nil, err
-	}
-	return bindings, nil
-}
-
-func (r *BindingRepository) FindAllByModeratorID(moderatorID string, status string, timeFrom *time.Time, timeTo *time.Time) ([]*ds.Binding, error) {
-	bindings := make([]*ds.Binding, 0)
-	if timeFrom == nil && timeTo == nil {
-		err := r.db.Find(&bindings, "moderator_id = ? AND (? = '' OR status = ?)", moderatorID, status, status).Error
-		if err != nil {
-			return nil, err
-		}
-		return bindings, nil
-	}
-	query := r.db.Table("bindings").Where("moderator_id = ?", moderatorID).Where("? = '' OR status = ?", status, status).Where("formatted_at >= ?", timeFrom).Where("formatted_at <= ?", timeTo).Order("created_at DESC")
+	query := r.db.Table("bindings").
+		Where("user_id = ?", userID).
+		Where("? = '' OR status = ?", status, status).
+		Where("formatted_at >= ?", timeFrom).
+		Where("formatted_at <= ?", timeTo).
+		Order("created_at DESC")
 	if err := query.Find(&bindings).Error; err != nil {
 		return nil, err
 	}

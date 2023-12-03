@@ -5,8 +5,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func InitDocumentRoutes(e *echo.Echo, documentHandler *handler.DocumentHandler) {
-	e.GET("/documents", documentHandler.FindActiveDocuments)
+func InitDocumentRoutes(e *echo.Echo, documentHandler *handler.DocumentHandler, m *Middlewares) {
+	e.GET("/documents", documentHandler.FindActiveDocuments, m.WithOptionalAuth)
 	e.GET("/documents/:uuid", documentHandler.FindActiveDocumentByUUID)
 	e.POST("/documents", documentHandler.CreateDocument)
 	e.PUT("/documents/:uuid", documentHandler.UpdateDocumentByUUID)

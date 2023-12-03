@@ -1,0 +1,705 @@
+basePath: /
+definitions:
+  ds.Binding:
+    properties:
+      binding_id:
+        type: string
+      createdAt:
+        type: string
+      documents:
+        items:
+          $ref: '#/definitions/ds.Document'
+        type: array
+      endedAt:
+        type: string
+      formattedAt:
+        type: string
+      moderator:
+        $ref: '#/definitions/ds.User'
+      moderatorID:
+        type: string
+      status:
+        type: string
+      user:
+        $ref: '#/definitions/ds.User'
+      userID:
+        type: string
+      veteran:
+        $ref: '#/definitions/ds.Veteran'
+      veteranID:
+        type: string
+    type: object
+  ds.BindingStatusUpdateRequest:
+    properties:
+      status:
+        type: string
+    type: object
+  ds.BindingUpdateRequest:
+    properties:
+      veteran_id:
+        type: string
+    type: object
+  ds.DocBinding:
+    properties:
+      binding_id:
+        type: string
+      document_id:
+        type: string
+    type: object
+  ds.Document:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      document_id:
+        type: string
+      image_url:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+    type: object
+  ds.DocumentListResponse:
+    properties:
+      documents:
+        items:
+          $ref: '#/definitions/ds.Document'
+        type: array
+      entered_binding_id:
+        type: string
+    type: object
+  ds.LoginRequest:
+    properties:
+      email:
+        type: string
+      passwd:
+        type: string
+    type: object
+  ds.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  ds.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      passwd:
+        type: string
+    type: object
+  ds.RegisterResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  ds.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      passwd:
+        type: string
+      role:
+        type: string
+      user_id:
+        type: string
+    type: object
+  ds.Veteran:
+    properties:
+      birthDate:
+        type: string
+      createdAt:
+        type: string
+      firstName:
+        type: string
+      imageUrl:
+        type: string
+      lastName:
+        type: string
+      patronymic:
+        type: string
+      veteran_id:
+        type: string
+    type: object
+host: 127.0.0.1:8080
+info:
+  contact:
+    email: az@bilalov@mail.ru
+    name: API Support
+    url: https://t.me/azat_bil
+  description: This is a sample server Book of Memory API server.
+  license:
+    name: AS IS (NO WARRANTY)
+  title: Book of Memory API
+  version: "1.0"
+paths:
+  /bindings:
+    get:
+      description: Find bindings
+      parameters:
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Date from
+        format: date
+        in: query
+        name: date_from
+        type: string
+      - description: Date to
+        format: date
+        in: query
+        name: date_to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ds.Binding'
+            type: array
+        "400":
+          description: некорректный запрос
+          schema:
+            type: string
+        "401":
+          description: отсутствует токен авторизации
+          schema:
+            type: string
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Find bindings
+      tags:
+      - Binding
+  /bindings/{uuid}:
+    delete:
+      description: Delete binding by UUID
+      parameters:
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: статус не является entered
+          schema:
+            type: string
+        "401":
+          description: отсутствует токен авторизации
+          schema:
+            type: string
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+        "404":
+          description: заявка не найдена
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Delete binding by UUID
+      tags:
+      - Binding
+    get:
+      description: Find binding by UUID
+      parameters:
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Binding'
+        "400":
+          description: идентификатор пользователя пустой или недействительный
+          schema:
+            type: string
+        "401":
+          description: отсутствует токен авторизации
+          schema:
+            type: string
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+        "404":
+          description: заявка не найдена
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Find binding by UUID
+      tags:
+      - Binding
+    put:
+      consumes:
+      - application/json
+      description: Update binding by UUID
+      parameters:
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ds.BindingUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Binding'
+        "400":
+          description: статус не является entered или in_progress
+          schema:
+            type: string
+        "401":
+          description: отсутствует токен авторизации
+          schema:
+            type: string
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+        "404":
+          description: заявка не найдена
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Update binding by UUID
+      tags:
+      - Binding
+  /bindings/{uuid}/accept-reject:
+    put:
+      consumes:
+      - application/json
+      description: Accept or reject binding by UUID
+      parameters:
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ds.BindingStatusUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Binding'
+        "400":
+          description: статус недействителен
+          schema:
+            type: string
+        "401":
+          description: отсутствует токен авторизации
+          schema:
+            type: string
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+        "404":
+          description: заявка не найдена
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Accept or reject binding by UUID
+      tags:
+      - Binding
+  /bindings/{uuid}/submit:
+    put:
+      consumes:
+      - application/json
+      description: Submit binding by UUID
+      parameters:
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Binding'
+        "400":
+          description: ветеран не установлен
+          schema:
+            type: string
+        "401":
+          description: отсутствует токен авторизации
+          schema:
+            type: string
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+        "404":
+          description: заявка не найдена
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Submit binding by UUID
+      tags:
+      - Binding
+  /documents:
+    get:
+      consumes:
+      - application/json
+      description: Find active documents
+      parameters:
+      - description: title
+        in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ds.DocumentListResponse'
+            type: array
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+        "404":
+          description: документы не найдены
+          schema:
+            type: string
+      summary: Find active documents
+      tags:
+      - Document
+    post:
+      consumes:
+      - application/json
+      description: Create document
+      parameters:
+      - description: title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Document'
+        "400":
+          description: неверный запрос
+          schema:
+            type: string
+      summary: Create document
+      tags:
+      - Document
+  /documents/{uuid}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete document by uuid
+      parameters:
+      - description: uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: документ не найден
+          schema:
+            type: string
+      summary: Delete document by uuid
+      tags:
+      - Document
+    get:
+      consumes:
+      - application/json
+      description: Find active document by uuid
+      parameters:
+      - description: uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Document'
+        "404":
+          description: документ не найден
+          schema:
+            type: string
+      summary: Find active document by uuid
+      tags:
+      - Document
+    put:
+      consumes:
+      - application/json
+      description: Update document by uuid
+      parameters:
+      - description: uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - in: formData
+        name: description
+        required: true
+        type: string
+      - in: formData
+        name: title
+        required: true
+        type: string
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Document'
+        "400":
+          description: неверный запрос
+          schema:
+            type: string
+        "404":
+          description: документ не найден
+          schema:
+            type: string
+      summary: Update document by uuid
+      tags:
+      - Document
+  /documents/{uuid}/binding:
+    delete:
+      consumes:
+      - application/json
+      description: Remove document from binding by uuid
+      parameters:
+      - description: uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: неверный запрос
+          schema:
+            type: string
+        "404":
+          description: документ не найден
+          schema:
+            type: string
+      summary: Remove document from binding by uuid
+      tags:
+      - Document
+    post:
+      consumes:
+      - application/json
+      description: Add document to binding by uuid
+      parameters:
+      - description: uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ds.DocBinding'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: неверный запрос
+          schema:
+            type: string
+        "401":
+          description: отсутствует токен авторизации
+          schema:
+            type: string
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+        "404":
+          description: документ не найден
+          schema:
+            type: string
+      summary: Add document to binding by uuid
+      tags:
+      - Document
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.LoginResponse'
+        "400":
+          description: неверный логин или пароль
+          schema:
+            type: string
+      summary: Login
+      tags:
+      - Auth
+  /logout:
+    post:
+      description: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: выход выполнен успешно
+          schema:
+            type: string
+        "400":
+          description: неверный токен авторизации
+          schema:
+            type: string
+        "401":
+          description: неверный токен авторизации
+          schema:
+            type: string
+        "403":
+          description: токен авторизации в блеклисте
+          schema:
+            type: string
+      security:
+      - JwtAuth: []
+      summary: Logout
+      tags:
+      - Auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.RegisterResponse'
+        "400":
+          description: пользователь с таким email уже существует
+          schema:
+            type: string
+      summary: Register
+      tags:
+      - Auth
+schemes:
+- http
+securityDefinitions:
+  JwtAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -38,11 +38,11 @@ func NewBindingUsecase(
 
 func (u *BindingUsecase) FindBindingsByUserID(userID string, status string, dateFrom string, dateTo string) ([]*ds.Binding, error) {
 	if userID == "" {
-		return nil, errors.New("user id is empty")
+		return nil, errors.New("идентификатор пользователя пустой")
 	}
 	user, err := u.userRepository.FindByUUID(userID)
 	if err == gorm.ErrRecordNotFound {
-		return nil, errors.New("user not found")
+		return nil, errors.New("пользователь не найден")
 	}
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (u *BindingUsecase) FindBindingsByUserID(userID string, status string, date
 
 	if dateFrom == "" && dateTo == "" {
 		if user.Role == ds.USER_ROLE_MODERATOR {
-			return u.bindingRepository.FindAllByModeratorID(userID, status, nil, nil)
+			return u.bindingRepository.FindAll(status, nil, nil)
 		}
 		return u.bindingRepository.FindAllByUserID(userID, status, nil, nil)
 	}
@@ -64,7 +64,7 @@ func (u *BindingUsecase) FindBindingsByUserID(userID string, status string, date
 		timeTo = time.Now()
 	}
 	if user.Role == ds.USER_ROLE_MODERATOR {
-		return u.bindingRepository.FindAllByModeratorID(userID, status, &timeFrom, &timeTo)
+		return u.bindingRepository.FindAll(status, &timeFrom, &timeTo)
 	}
 	return u.bindingRepository.FindAllByUserID(userID, status, &timeFrom, &timeTo)
 }
@@ -76,7 +76,7 @@ func (u *BindingUsecase) FindBindingByVeteranID(veteranID string, status string,
 func (u *BindingUsecase) FindBindingByUUID(uuid string) (*ds.Binding, error) {
 	binding, err := u.bindingRepository.FindByUUID(uuid)
 	if err == gorm.ErrRecordNotFound {
-		return nil, errors.New("binding not found")
+		return nil, errors.New("заявка не найдена")
 	}
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (u *BindingUsecase) UpdateBindingByUUID(uuid string, binding ds.BindingUpda
 	}
 	v, err := u.veteranRepository.FindByUUID(binding.VeteranID)
 	if err == gorm.ErrRecordNotFound {
-		return nil, errors.New("veteran not found")
+		return nil, errors.New("ветеран не найден")
 	}
 	if err != nil {
 		return nil, err

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strings"
+
 	"github.com/Azat-Bilalov/book-of-memory-server/internal/app/ds"
 	"github.com/Azat-Bilalov/book-of-memory-server/internal/app/usecase"
 	"github.com/labstack/echo/v4"
@@ -14,12 +16,26 @@ func NewBindingHandler(bindingUsecase *usecase.BindingUsecase) *BindingHandler {
 	return &BindingHandler{bindingUsecase}
 }
 
+// Binding godoc
+// @Summary      Find bindings
+// @Description  Find bindings
+// @Tags         Binding
+// @Produce      json
+// @Param        status   query string false "Status"
+// @Param        date_from query string false "Date from" Format(date)
+// @Param        date_to   query string false "Date to" Format(date)
+// @Success      200  {object}  []ds.Binding
+// @Failure      400  {string}  string "некорректный запрос"
+// @Failure			 401	{string}  string "отсутствует токен авторизации"
+// @Failure      403  {string}  string "токен авторизации в блеклисте"
+// @Security     JwtAuth
+// @Router       /bindings [get]
 func (h *BindingHandler) FindBindings(c echo.Context) error {
 	var (
-		userID   = c.Request().Header.Get("x-user-id")
-		status   = c.QueryParam("status")
-		dateFrom = c.QueryParam("date_from")
-		dateTo   = c.QueryParam("date_to")
+		userID   = c.Get("user_id").(string)
+		status   = strings.ToLower(c.QueryParam("status"))
+		dateFrom = strings.ToLower(c.QueryParam("date_from"))
+		dateTo   = strings.ToLower(c.QueryParam("date_to"))
 	)
 	if userID == "" || !IsValidUUID(userID) {
 		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
@@ -31,12 +47,27 @@ func (h *BindingHandler) FindBindings(c echo.Context) error {
 	return c.JSON(200, bindings)
 }
 
+// Binding godoc
+// @Summary      Find binding by UUID
+// @Description  Find binding by UUID
+// @Tags         Binding
+// @Produce      json
+// @Param        uuid path string true "UUID"
+// @Success      200  {object}  ds.Binding
+// @Failure      400  {string}  string "недействительный идентификатор"
+// @Failure      400  {string}  string "идентификатор пользователя пустой или недействительный"
+// @Failure			 401	{string}  string "отсутствует токен авторизации"
+// @Failure      403  {string}  string "токен авторизации в блеклисте"
+// @Failure      404  {string}  string "заявка не найдена"
+// @Security     JwtAuth
+// @Router       /bindings/{uuid} [get]
 func (h *BindingHandler) FindBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
 		return c.JSON(400, "недействительный идентификатор")
 	}
-	userID := c.Request().Header.Get("x-user-id")
+	userID := c.Get("user_id").(string)
+	userRole := c.Get("user_role").(string)
 	if userID == "" || !IsValidUUID(userID) {
 		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
@@ -44,18 +75,35 @@ func (h *BindingHandler) FindBindingByUUID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(404, "заявка не найдена")
 	}
-	if binding.UserID != userID && binding.ModeratorID != userID {
+	if binding.UserID == userID || userRole == "moderator" {
 		return c.NoContent(403)
 	}
 	return c.JSONPretty(200, binding, " ")
 }
 
+// Binding godoc
+// @Summary      Update binding by UUID
+// @Description  Update binding by UUID
+// @Tags         Binding
+// @Accept       json
+// @Produce      json
+// @Param        uuid path string true "UUID"
+// @Param        body body ds.BindingUpdateRequest true "Body"
+// @Success      200  {object}  ds.Binding
+// @Failure      400  {string}  string "недействительный идентификатор"
+// @Failure      400  {string}  string "идентификатор пользователя пустой или недействительный"
+// @Failure			 401	{string}  string "отсутствует токен авторизации"
+// @Failure      403  {string}  string "токен авторизации в блеклисте"
+// @Failure      404  {string}  string "заявка не найдена"
+// @Failure      400  {string}  string "статус не является entered или in_progress"
+// @Security     JwtAuth
+// @Router       /bindings/{uuid} [put]
 func (h *BindingHandler) UpdateBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
 		return c.JSON(400, "недействительный идентификатор")
 	}
-	userID := c.Request().Header.Get("x-user-id")
+	userID := c.Get("user_id").(string)
 	if userID == "" || !IsValidUUID(userID) {
 		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
@@ -80,12 +128,29 @@ func (h *BindingHandler) UpdateBindingByUUID(c echo.Context) error {
 	return c.JSON(200, binding)
 }
 
+// Binding godoc
+// @Summary      Submit binding by UUID
+// @Description  Submit binding by UUID
+// @Tags         Binding
+// @Accept       json
+// @Produce      json
+// @Param        uuid path string true "UUID"
+// @Success      200  {object}  ds.Binding
+// @Failure      400  {string}  string "недействительный идентификатор"
+// @Failure      400  {string}  string "идентификатор пользователя пустой или недействительный"
+// @Failure			 401	{string}  string "отсутствует токен авторизации"
+// @Failure      403  {string}  string "токен авторизации в блеклисте"
+// @Failure      404  {string}  string "заявка не найдена"
+// @Failure      400  {string}  string "статус не является entered"
+// @Failure      400  {string}  string "ветеран не установлен"
+// @Security     JwtAuth
+// @Router       /bindings/{uuid}/submit [put]
 func (h *BindingHandler) SubmitBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
 		return c.JSON(400, "недействительный идентификатор")
 	}
-	userID := c.Request().Header.Get("x-user-id")
+	userID := c.Get("user_id").(string)
 	if userID == "" || !IsValidUUID(userID) {
 		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
@@ -109,12 +174,30 @@ func (h *BindingHandler) SubmitBindingByUUID(c echo.Context) error {
 	return c.JSON(200, binding)
 }
 
+// Binding godoc
+// @Summary      Accept or reject binding by UUID
+// @Description  Accept or reject binding by UUID
+// @Tags         Binding
+// @Accept       json
+// @Produce      json
+// @Param        uuid path string true "UUID"
+// @Param        body body ds.BindingStatusUpdateRequest true "Body"
+// @Success      200  {object}  ds.Binding
+// @Failure      400  {string}  string "недействительный идентификатор"
+// @Failure      400  {string}  string "идентификатор модератора пустой или недействительный"
+// @Failure			 401	{string}  string "отсутствует токен авторизации"
+// @Failure      403  {string}  string "токен авторизации в блеклисте"
+// @Failure      404  {string}  string "заявка не найдена"
+// @Failure      400  {string}  string "статус не является in_progress"
+// @Failure      400  {string}  string "статус недействителен"
+// @Security     JwtAuth
+// @Router       /bindings/{uuid}/accept-reject [put]
 func (h *BindingHandler) AcceptRejectBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
 		return c.NoContent(404)
 	}
-	moderatorID := c.Request().Header.Get("x-user-id")
+	moderatorID := c.Get("user_id").(string)
 	if moderatorID == "" || !IsValidUUID(moderatorID) {
 		return c.JSON(400, "идентификатор модератора пустой или недействительный")
 	}
@@ -146,12 +229,27 @@ func (h *BindingHandler) AcceptRejectBindingByUUID(c echo.Context) error {
 	return c.JSON(200, binding)
 }
 
+// Binding godoc
+// @Summary      Delete binding by UUID
+// @Description  Delete binding by UUID
+// @Tags         Binding
+// @Produce      json
+// @Param        uuid path string true "UUID"
+// @Success      200  {string}  string "OK"
+// @Failure      400  {string}  string "недействительный идентификатор"
+// @Failure      400  {string}  string "идентификатор пользователя пустой или недействительный"
+// @Failure			 401	{string}  string "отсутствует токен авторизации"
+// @Failure      403  {string}  string "токен авторизации в блеклисте"
+// @Failure      404  {string}  string "заявка не найдена"
+// @Failure      400  {string}  string "статус не является entered"
+// @Security     JwtAuth
+// @Router       /bindings/{uuid} [delete]
 func (h *BindingHandler) DeleteBindingByUUID(c echo.Context) error {
 	uuid := c.Param("uuid")
 	if !IsValidUUID(uuid) {
 		return c.NoContent(404)
 	}
-	userID := c.Request().Header.Get("x-user-id")
+	userID := c.Get("user_id").(string)
 	if userID == "" || !IsValidUUID(userID) {
 		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}

@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"log"
+
 	"github.com/Azat-Bilalov/book-of-memory-server/internal/app/ds"
 	"gorm.io/gorm"
 )
@@ -33,7 +35,9 @@ func (r *DocumentRepository) Store(document *ds.Document) (*ds.Document, error) 
 // FindAll возвращает все документы из базы данных
 func (r *DocumentRepository) FindAll(status string, title string) ([]*ds.Document, error) {
 	documents := make([]*ds.Document, 0)
+	log.Println("FindAll")
 	query := r.db.Table("documents").Where("status = ?", status).Where("lower(title) LIKE ?", "%"+title+"%")
+	log.Println(query)
 	if err := query.Find(&documents).Error; err != nil {
 		return nil, err
 	}

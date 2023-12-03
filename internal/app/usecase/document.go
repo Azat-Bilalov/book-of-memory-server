@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"log"
 	"math/rand"
 
 	"github.com/Azat-Bilalov/book-of-memory-server/internal/app/config"
@@ -62,7 +63,9 @@ func (u *DocumentUsecase) CreateDocument(document ds.DocumentRequest) (*ds.Docum
 }
 
 func (u *DocumentUsecase) FindActiveDocuments(title string, userID string) (*ds.DocumentListResponse, error) {
+	log.Println("FindActiveDocuments")
 	documents, err := u.documentRepository.FindAll(ds.DOCUMENT_STATUS_ACTIVE, title)
+	log.Println(documents)
 	if err != nil {
 		return nil, err
 	}

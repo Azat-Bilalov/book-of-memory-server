@@ -22,7 +22,7 @@ type Document struct {
 type DocumentRequest struct {
 	Title       string                `form:"title" binding:"required"`
 	Description string                `form:"description" binding:"required"`
-	Image       *multipart.FileHeader `form:"image" binding:"required"`
+	Image       *multipart.FileHeader `form:"image" binding:"required" swaggerignore:"true"`
 }
 
 type DocumentResponse struct {
