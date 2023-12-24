@@ -52,6 +52,10 @@ func (a *Application) StartServer() {
 	documentHandler := handler.NewDocumentHandler(documentUsecase)
 	routes.InitDocumentRoutes(e, documentHandler, m)
 
+	veteranUsecase := usecase.NewVeteranUsecase(veteranRepository)
+	veteranHandler := handler.NewVeteranHandler(veteranUsecase)
+	routes.InitVeteranRoutes(e, veteranHandler, m)
+
 	routes.InitFileRoutes(e, handler.NewFileHandler())
 
 	authUsecase := usecase.NewAuthUsecase(userRepository, a.redis)

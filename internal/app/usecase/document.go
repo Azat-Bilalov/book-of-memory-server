@@ -157,8 +157,10 @@ func (u *DocumentUsecase) DeleteDocumentByUUID(uuid string) error {
 
 func (u *DocumentUsecase) AddDocumentToBindingByUUID(documentID string, userID string, docBindingRequest ds.DocBinding) error {
 	binding, err := u.bindingRepository.FindLastEnteredBindingByUserID(userID)
+	log.Println(binding, err)
 	if err == gorm.ErrRecordNotFound {
 		moderators, err := u.userRepository.FindAllModerators()
+		log.Println(moderators, err)
 		if err != nil {
 			return err
 		}
@@ -172,6 +174,7 @@ func (u *DocumentUsecase) AddDocumentToBindingByUUID(documentID string, userID s
 			Status:      ds.BINDING_STATUS_ENTERED,
 		}
 		binding, err = u.bindingRepository.Store(binding)
+		log.Println(binding, err)
 		if err != nil {
 			return err
 		}

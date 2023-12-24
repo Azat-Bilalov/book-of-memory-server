@@ -7,7 +7,7 @@ import (
 
 type InterfaceVeteranRepository interface {
 	Store(veteran *ds.Veteran) (*ds.Veteran, error)
-	FindAll() ([]*ds.Veteran, error)
+	FindAll(name string) ([]*ds.Veteran, error)
 	FindByUUID(uuid string) (*ds.Veteran, error)
 	UpdateByUUID(veteran *ds.Veteran) (*ds.Veteran, error)
 	DeleteByUUID(uuid string) error
@@ -28,9 +28,12 @@ func (r *VeteranRepository) Store(veteran *ds.Veteran) (*ds.Veteran, error) {
 	return veteran, nil
 }
 
-func (r *VeteranRepository) FindAll() ([]*ds.Veteran, error) {
+func (r *VeteranRepository) FindAll(name string) ([]*ds.Veteran, error) {
 	veterans := make([]*ds.Veteran, 0)
-	err := r.db.Find(&veterans).Error
+	err := r.db.
+		Find(&veterans).
+		Where("first_name LIKE ? OR last_name LIKE ? OR patronymic LIKE ?", "%"+name+"%", "%"+name+"%", "%"+name+"%").
+		Error
 	if err != nil {
 		return nil, err
 	}

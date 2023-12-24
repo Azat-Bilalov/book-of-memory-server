@@ -52,6 +52,7 @@ func (u *AuthUsecase) Login(login string, passwd string) (*ds.LoginResponse, err
 		ExpiresIn:   int(time.Hour) * 24,
 		AccessToken: tokenString,
 		TokenType:   "Bearer",
+		Role:        user.Role,
 	}, nil
 }
 
@@ -88,6 +89,7 @@ func (u *AuthUsecase) Register(firstName string, lastName string, email string, 
 		ExpiresIn:   int(time.Hour) * 24,
 		AccessToken: tokenString,
 		TokenType:   "Bearer",
+		Role:        user.Role,
 	}, nil
 }
 

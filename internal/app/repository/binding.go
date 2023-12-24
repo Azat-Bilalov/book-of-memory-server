@@ -37,14 +37,21 @@ func (r *BindingRepository) Store(binding *ds.Binding) (*ds.Binding, error) {
 func (r *BindingRepository) FindAll(status string, timeFrom *time.Time, timeTo *time.Time) ([]*ds.Binding, error) {
 	bindings := make([]*ds.Binding, 0)
 	if timeFrom == nil && timeTo == nil {
-		err := r.db.Find(&bindings, "? = '' OR status = ?", status, status).Error
-		if err != nil {
+		query := r.db.
+			Table("bindings").
+			Where("status != ?", ds.BINDING_STATUS_DELETED).
+			Where("status != ?", ds.BINDING_STATUS_ENTERED).
+			Where("? = '' OR status = ?", status, status).
+			Order("created_at DESC")
+		if err := query.Find(&bindings).Error; err != nil {
 			return nil, err
 		}
 		return bindings, nil
 	}
 	query := r.db.
 		Table("bindings").
+		Where("status != ?", ds.BINDING_STATUS_DELETED).
+		Where("status != ?", ds.BINDING_STATUS_ENTERED).
 		Where("? = '' OR status = ?", status, status).
 		Where("formatted_at >= ?", timeFrom).
 		Where("formatted_at <= ?", timeTo).
@@ -58,14 +65,21 @@ func (r *BindingRepository) FindAll(status string, timeFrom *time.Time, timeTo *
 func (r *BindingRepository) FindAllByUserID(userID string, status string, timeFrom *time.Time, timeTo *time.Time) ([]*ds.Binding, error) {
 	bindings := make([]*ds.Binding, 0)
 	if timeFrom == nil && timeTo == nil {
-		err := r.db.Find(&bindings, "user_id = ? AND (? = '' OR status = ?)", userID, status, status).Error
-		if err != nil {
+		query := r.db.Table("bindings").
+			Where("user_id = ?", userID).
+			Where("status != ?", ds.BINDING_STATUS_DELETED).
+			Where("status != ?", ds.BINDING_STATUS_ENTERED).
+			Where("? = '' OR status = ?", status, status).
+			Order("created_at DESC")
+		if err := query.Find(&bindings).Error; err != nil {
 			return nil, err
 		}
 		return bindings, nil
 	}
 	query := r.db.Table("bindings").
 		Where("user_id = ?", userID).
+		Where("status != ?", ds.BINDING_STATUS_DELETED).
+		Where("status != ?", ds.BINDING_STATUS_ENTERED).
 		Where("? = '' OR status = ?", status, status).
 		Where("formatted_at >= ?", timeFrom).
 		Where("formatted_at <= ?", timeTo).

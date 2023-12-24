@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"strings"
 
 	"github.com/Azat-Bilalov/book-of-memory-server/internal/app/ds"
@@ -168,6 +169,7 @@ func (h *DocumentHandler) AddDocumentToBindingByUUID(c echo.Context) error {
 	if userID == "" || !IsValidUUID(userID) {
 		return c.JSON(400, "идентификатор пользователя не валидный")
 	}
+	log.Println(userID)
 	req := ds.DocBinding{}
 	if err := c.Bind(&req); err != nil {
 		return err

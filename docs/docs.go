@@ -985,6 +985,9 @@ const docTemplate = `{
                 "expires_in": {
                     "type": "integer"
                 },
+                "role": {
+                    "type": "string"
+                },
                 "token_type": {
                     "type": "string"
                 }
@@ -1015,6 +1018,9 @@ const docTemplate = `{
                 },
                 "expires_in": {
                     "type": "integer"
+                },
+                "role": {
+                    "type": "string"
                 },
                 "token_type": {
                     "type": "string"
@@ -1050,19 +1056,25 @@ const docTemplate = `{
         "ds.Veteran": {
             "type": "object",
             "properties": {
-                "birthDate": {
+                "birth_date": {
                     "type": "string"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "firstName": {
+                "documents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.Document"
+                    }
+                },
+                "first_name": {
                     "type": "string"
                 },
-                "imageUrl": {
+                "image_url": {
                     "type": "string"
                 },
-                "lastName": {
+                "last_name": {
                     "type": "string"
                 },
                 "patronymic": {

@@ -11,12 +11,12 @@ const (
 )
 
 type Document struct {
-	Document_id string `gorm:"primarykey;default:gen_random_uuid()"`
-	Title       string
-	Description string
-	Image_url   string
-	Status      string `gorm:"check:status IN ('active', 'deleted')"`
-	CreatedAt   time.Time
+	Document_id string    `gorm:"primarykey;default:gen_random_uuid()" json:"document_id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Image_url   string    `json:"image_url"`
+	Status      string    `gorm:"check:status IN ('active', 'deleted')" json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type DocumentRequest struct {

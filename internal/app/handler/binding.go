@@ -67,7 +67,7 @@ func (h *BindingHandler) FindBindingByUUID(c echo.Context) error {
 		return c.JSON(400, "недействительный идентификатор")
 	}
 	userID := c.Get("user_id").(string)
-	userRole := c.Get("user_role").(string)
+	userRole := c.Get("role").(string)
 	if userID == "" || !IsValidUUID(userID) {
 		return c.JSON(400, "идентификатор пользователя пустой или недействительный")
 	}
@@ -75,7 +75,7 @@ func (h *BindingHandler) FindBindingByUUID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(404, "заявка не найдена")
 	}
-	if binding.UserID == userID || userRole == "moderator" {
+	if binding.UserID != userID && userRole != "moderator" {
 		return c.NoContent(403)
 	}
 	return c.JSONPretty(200, binding, " ")

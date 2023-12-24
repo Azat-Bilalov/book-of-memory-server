@@ -83,6 +83,8 @@ definitions:
         type: string
       expires_in:
         type: integer
+      role:
+        type: string
       token_type:
         type: string
     type: object
@@ -103,6 +105,8 @@ definitions:
         type: string
       expires_in:
         type: integer
+      role:
+        type: string
       token_type:
         type: string
     type: object
@@ -125,15 +129,19 @@ definitions:
     type: object
   ds.Veteran:
     properties:
-      birthDate:
+      birth_date:
         type: string
-      createdAt:
+      created_at:
         type: string
-      firstName:
+      documents:
+        items:
+          $ref: '#/definitions/ds.Document'
+        type: array
+      first_name:
         type: string
-      imageUrl:
+      image_url:
         type: string
-      lastName:
+      last_name:
         type: string
       patronymic:
         type: string
