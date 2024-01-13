@@ -30,11 +30,10 @@ func (r *VeteranRepository) Store(veteran *ds.Veteran) (*ds.Veteran, error) {
 
 func (r *VeteranRepository) FindAll(name string) ([]*ds.Veteran, error) {
 	veterans := make([]*ds.Veteran, 0)
-	err := r.db.
-		Find(&veterans).
-		Where("first_name LIKE ? OR last_name LIKE ? OR patronymic LIKE ?", "%"+name+"%", "%"+name+"%", "%"+name+"%").
-		Error
-	if err != nil {
+	query := r.db.
+		Table("veterans").
+		Where("lower(first_name) LIKE ? OR lower(last_name) LIKE ? OR lower(patronymic) LIKE ?", "%"+name+"%", "%"+name+"%", "%"+name+"%")
+	if err := query.Find(&veterans).Error; err != nil {
 		return nil, err
 	}
 	return veterans, nil

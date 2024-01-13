@@ -39,6 +39,14 @@ func (r *BindingRepository) FindAll(status string, timeFrom *time.Time, timeTo *
 	if timeFrom == nil && timeTo == nil {
 		query := r.db.
 			Table("bindings").
+			Preload("Documents").
+			Preload("Veteran").
+			Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+				return db.Select("user_id, first_name, last_name, email")
+			}).
+			Preload("User", func(db *gorm.DB) *gorm.DB {
+				return db.Select("user_id, first_name, last_name, email")
+			}).
 			Where("status != ?", ds.BINDING_STATUS_DELETED).
 			Where("status != ?", ds.BINDING_STATUS_ENTERED).
 			Where("? = '' OR status = ?", status, status).
@@ -50,6 +58,14 @@ func (r *BindingRepository) FindAll(status string, timeFrom *time.Time, timeTo *
 	}
 	query := r.db.
 		Table("bindings").
+		Preload("Documents").
+		Preload("Veteran").
+		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+			return db.Select("user_id, first_name, last_name, email")
+		}).
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("user_id, first_name, last_name, email")
+		}).
 		Where("status != ?", ds.BINDING_STATUS_DELETED).
 		Where("status != ?", ds.BINDING_STATUS_ENTERED).
 		Where("? = '' OR status = ?", status, status).
@@ -66,6 +82,14 @@ func (r *BindingRepository) FindAllByUserID(userID string, status string, timeFr
 	bindings := make([]*ds.Binding, 0)
 	if timeFrom == nil && timeTo == nil {
 		query := r.db.Table("bindings").
+			Preload("Documents").
+			Preload("Veteran").
+			Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+				return db.Select("user_id, first_name, last_name, email")
+			}).
+			Preload("User", func(db *gorm.DB) *gorm.DB {
+				return db.Select("user_id, first_name, last_name, email")
+			}).
 			Where("user_id = ?", userID).
 			Where("status != ?", ds.BINDING_STATUS_DELETED).
 			Where("status != ?", ds.BINDING_STATUS_ENTERED).
@@ -77,6 +101,14 @@ func (r *BindingRepository) FindAllByUserID(userID string, status string, timeFr
 		return bindings, nil
 	}
 	query := r.db.Table("bindings").
+		Preload("Documents").
+		Preload("Veteran").
+		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+			return db.Select("user_id, first_name, last_name, email")
+		}).
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("user_id, first_name, last_name, email")
+		}).
 		Where("user_id = ?", userID).
 		Where("status != ?", ds.BINDING_STATUS_DELETED).
 		Where("status != ?", ds.BINDING_STATUS_ENTERED).

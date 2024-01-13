@@ -17,9 +17,9 @@ type Veteran struct {
 }
 
 type VeteranRequest struct {
-	FirstName  string                `json:"first_name"`
-	LastName   string                `json:"last_name"`
-	Patronymic string                `json:"patronymic"`
-	BirthDate  time.Time             `json:"birth_date"`
+	FirstName  string                `form:"first_name" veteran:"required"`
+	LastName   string                `form:"last_name" veteran:"required"`
+	Patronymic string                `form:"patronymic" veteran:"required"`
+	BirthDate  time.Time             `form:"birth_date" veteran:"required" time_format:"2006-01-02" time_utc:"true" time_location:"Europe/Moscow"`
 	Image      *multipart.FileHeader `form:"image" veteran:"required" swaggerignore:"true"`
 }

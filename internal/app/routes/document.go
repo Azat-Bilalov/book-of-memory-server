@@ -11,6 +11,6 @@ func InitDocumentRoutes(e *echo.Echo, documentHandler *handler.DocumentHandler, 
 	e.POST("/documents", documentHandler.CreateDocument)
 	e.PUT("/documents/:uuid", documentHandler.UpdateDocumentByUUID)
 	e.DELETE("/documents/:uuid", documentHandler.DeleteDocumentByUUID)
-	e.POST("/documents/:uuid/binding", documentHandler.AddDocumentToBindingByUUID, m.WithAuth, m.WithUser)
-	e.DELETE("/documents/:uuid/binding", documentHandler.RemoveDocumentFromBindingByUUID, m.WithAuth, m.WithUser)
+	e.POST("/documents/:uuid/binding", documentHandler.AddDocumentToBindingByUUID, m.WithAuth)
+	e.DELETE("/documents/:uuid/binding", documentHandler.RemoveDocumentFromBindingByUUID, m.WithAuth)
 }

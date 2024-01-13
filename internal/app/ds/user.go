@@ -10,12 +10,12 @@ const (
 )
 
 type User struct {
-	User_id   string `gorm:"primaryKey"`
-	FirstName string `gorm:"not null"`
-	LastName  string `gorm:"not null"`
-	Email     string `gorm:"unique"`
-	Passwd    string `gorm:"not null"`
-	Role      string `gorm:"not null;default:user;check:role IN ('moderator', 'user')"`
+	User_id   string `gorm:"primaryKey" json:"user_id"`
+	FirstName string `gorm:"not null" json:"first_name"`
+	LastName  string `gorm:"not null" json:"last_name"`
+	Email     string `gorm:"unique" json:"email"`
+	Passwd    string `gorm:"not null" json:"passwd"`
+	Role      string `gorm:"not null;default:user;check:role IN ('moderator', 'user')" json:"role"`
 	CreatedAt time.Time
 }
 

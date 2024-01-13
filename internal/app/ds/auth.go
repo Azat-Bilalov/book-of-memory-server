@@ -10,6 +10,9 @@ type LoginResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
 	Role        string `json:"role"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	User_id     string `json:"user_id"`
 }
 
 type RegisterRequest struct {
@@ -24,4 +27,7 @@ type RegisterResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
 	Role        string `json:"role"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	User_id     string `json:"user_id"`
 }

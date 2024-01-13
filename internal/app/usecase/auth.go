@@ -53,6 +53,9 @@ func (u *AuthUsecase) Login(login string, passwd string) (*ds.LoginResponse, err
 		AccessToken: tokenString,
 		TokenType:   "Bearer",
 		Role:        user.Role,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		User_id:     user.User_id,
 	}, nil
 }
 
@@ -90,6 +93,9 @@ func (u *AuthUsecase) Register(firstName string, lastName string, email string, 
 		AccessToken: tokenString,
 		TokenType:   "Bearer",
 		Role:        user.Role,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		User_id:     user.User_id,
 	}, nil
 }
 
